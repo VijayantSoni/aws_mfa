@@ -1,0 +1,4 @@
+# Save at ~/.aws/aws_arn_prd
+# Create multiple per account with convention - aws_arn_<profile_name>
+# Remove all the comments and only keep arn in the actual file, no newline and spaces
+<account_arn_prd>

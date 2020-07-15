@@ -1,13 +1,16 @@
-
+#!/usr/bin/env bash
 function generate_mfa_token(){
 	# $1 -> Profile name as configured in ~/.aws/config
-	# #$2 -> Token code from MFA device
-	aws --profile "$1" sts get-session-token --serial-number `cat ~/.aws/aws_arn` --token-code "$2" > /tmp/aws_auth
+	# $2 -> Token code from MFA device
+	aws --profile "$1" sts get-session-token --serial-number `cat ~/.aws/aws_arn_"$1"` --token-code "$2" > /tmp/aws_auth
 }
 
 function update_mfa_token(){
 	# $1 -> Profile name as configured in ~/.aws/config
-	# #$2 -> Token code from MFA device
+	# $2 -> Token code from MFA device
+
+	echo "****** Updating MFA token for \"$1\" environment ******"
+
 	generate_mfa_token "$1" "$2"
 
 	# Fetch new auth
@@ -21,10 +24,24 @@ function update_mfa_token(){
 	old_aws_secret_access_key=`grep mfa -A 10 ~/.aws/credentials | grep "aws_secret_access_key" | cut -d "=" -f 2 | tr -d "," | tr -d '"' | tr -d '[:space:]'`
 	old_aws_session_token=`grep mfa -A 10 ~/.aws/credentials | grep "aws_session_token" | cut -d "=" -f 2 | tr -d "," | tr -d '"' | tr -d '[:space:]'`
 
+	echo "======== Old ========"
+
+	echo "$old_aws_access_key_id"
+	echo "$old_aws_secret_access_key"
+	echo "$old_aws_session_token"
+
+	echo "======== New ========"
+
+	echo "$new_aws_access_key_id"
+	echo "$new_aws_secret_access_key"
+	echo "$new_aws_session_token"
+
 	# Update auth
 	sed -i '.bup' "s|$old_aws_access_key_id|$new_aws_access_key_id|g" ~/.aws/credentials
 	sed -i '.bup' "s|$old_aws_secret_access_key|$new_aws_secret_access_key|g" ~/.aws/credentials
 	sed -i '.bup' "s|$old_aws_session_token|$new_aws_session_token|g" ~/.aws/credentials
+
+	rm -rf /tmp/aws_auth
 
 	echo "****** AWS MFA Auth updated successfully ******"
 }

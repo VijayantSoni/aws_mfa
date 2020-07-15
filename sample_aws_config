@@ -1,0 +1,11 @@
+# Save at ~/.aws/config
+# Update region codes as per actual
+# Remove comments from the actual file
+[default]
+region = us-west-2
+output = json
+[profile stage]
+region = us-east-1
+output = json
+[profile prd]
+region = us-west-2
